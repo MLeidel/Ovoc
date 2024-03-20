@@ -25,7 +25,7 @@ $ python3 ovoc.py
 
 #### Other Requirements
 
-> OpenAI Key  
+> [OpenAI Key](https://platform.openai.com/api-keys "openai website")  
 configured in your OS environment as `GPTKEY`.
 
 #### The 'Play' Button
@@ -35,12 +35,4 @@ On Linux:
 
 On Windows:
 > The audio file is played back by the systems media player.
-
-
-
-
-
-
-
-
 
