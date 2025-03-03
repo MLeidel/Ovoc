@@ -1,0 +1,34 @@
+<h1>Ovoc</h1>
+<h3>OpenAI Voice Desktop App</h3>
+<h4>Python - tkinter - openai API</h4>
+<p>Ovoc uses the OpenAI audio.speech API with several speech parameters
+to convert text into speech in the form of an audio file. The quality
+of the speech produced is more lifelike than that of previous 
+text-to-speech technologies.</p>
+<p>Explanation of the 
+<a href="https://platform.openai.com/docs/api-reference/audio/createSpeech" title="openai audio.speech">API parameters</a></p>
+<p><img alt="alttext" src="images/ovocGUI.png" title="title" /></p>
+<pre><code class="language-bash">$ python3 ovoc.py
+
+</code></pre>
+<h4>Required Modules</h4>
+<ul>
+<li>openai</li>
+<li>ttkbootstrap</li>
+</ul>
+<h4>Other Requirements</h4>
+<blockquote>
+<p><a href="https://platform.openai.com/api-keys" title="openai website">OpenAI Key</a><br />
+configured in your OS environment as <code>GPTKEY</code>.</p>
+</blockquote>
+<h4>The 'Play' Button</h4>
+<p>On Linux:  </p>
+<blockquote>
+<p>The program utility 'play' (SoX) plays back the audio file.</p>
+</blockquote>
+<p>On Windows:</p>
+<blockquote>
+<p>The audio file is played back by the systems media player.</p>
+</blockquote>
+<p>A preferable method for playback would be to open a file manager in the <code>`.../ovoc/files</code> 
+directory and double-click on the various audio files you create.</p>
