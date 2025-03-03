@@ -36,6 +36,7 @@ class Application(Frame):
         lbl_file = Label(frm1, text='Audio File Name')
         lbl_file.grid(row=1, column=2, sticky='nsw', padx=4, pady=4)
         self.ent_file_data.set("test.mp3")
+
         ToolTip(ent_file,
                 text="Saves to ovoc/files/ directory",
                 bootstyle=(WARNING),
@@ -81,6 +82,10 @@ class Application(Frame):
         rad_mod2.grid(row=3, column=1, sticky='nsw', padx=4, pady=4)
         self.mod_var.set("tts-1")
 
+        lbl_text = Label(frm2, text='Text ↓')
+        lbl_text.grid(row=4, column=1, sticky='nw', padx=4, pady=2)
+
+
         frm3 = Frame(self)
         frm3.grid(row=2, column=1, columnspan=2, sticky='nsew')
 
@@ -91,7 +96,7 @@ class Application(Frame):
         self.txt.config(wrap="word", # wrap=NONE
                            undo=True, # Tk 8.4
                            width=50,
-                           height=5,
+                           height=9,
                            padx=5, # inner margin
                            insertbackground='#FFF',   # cursor color
                            tabs=(efont.measure(' ' * 4),))
@@ -114,7 +119,7 @@ class Application(Frame):
 
         # btn_paste = Button(frm4, text="Paste", command=self.paste_text)
         # btn_paste.grid(row=1, column=1, padx=8, pady=8)
-        
+
         btn_create = Button(frm4, text='Create',
                             command=self.create_file, bootstyle="outline")
         btn_create.grid(row=1, column=2, padx=8, pady=8)
@@ -212,10 +217,10 @@ if os.path.isfile("winfo"):
         lcoor = f.read()
     root.geometry(lcoor.strip())
 else:
-    root.geometry("435x280") # WxH+left+top
+    root.geometry("435x354") # WxH+left+top
 
 root.protocol("WM_DELETE_WINDOW", save_location)  # UNCOMMENT TO SAVE GEOMETRY INFO
-root.resizable(0, 0) # no resize & removes maximize button
+# root.resizable(0, 0) # no resize & removes maximize button
 
 Application(root)
 
