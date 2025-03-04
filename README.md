@@ -37,4 +37,7 @@ On Windows:
 > The audio file is played back by the systems media player.
 
 A preferable method for playback would be to open a file manager in the ``.../ovoc/files` 
-directory and double-click on the various audio files you create.
+directory and double-click on the various audio files you've created. This will
+invoke your system's audio player and allow greater control over playback.
+
+---
