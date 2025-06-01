@@ -125,19 +125,23 @@ class Application(Frame):
         frm4 = Frame(self)
         frm4.grid(row=3, column=1, columnspan=2, sticky='')
 
+        btn_paste = Button(frm4, text="Paste",
+                           command=self.paste_text, bootstyle="outline")
+        btn_paste.grid(row=1, column=1, padx=20)
+
         btn_create = Button(frm4, text='Create',
                             command=self.create_file, bootstyle="outline")
-        btn_create.grid(row=1, column=2, padx=8, pady=8)
+        btn_create.grid(row=1, column=2, padx=20, pady=8)
         ToolTip(btn_create,
                 text="Creates audio file from the above specifications",
                 bootstyle=(WARNING),
                 wraplength=130)
 
         btn_play = Button(frm4, text='Play', command=self.play_file, bootstyle="outline")
-        btn_play.grid(row=1, column=3, padx=8, pady=8)
+        btn_play.grid(row=1, column=3, padx=20, pady=8)
 
         btn_close = Button(frm4, text='Close', command=save_location, bootstyle="outline")
-        btn_close.grid(row=1, column=4, padx=8, pady=8)
+        btn_close.grid(row=1, column=4, padx=20, pady=8)
 
     def create_file(self):
         ''' create the audio file
@@ -182,23 +186,25 @@ class Application(Frame):
             playcmd = ['play', speech_file_path]
         subprocess.Popen(playcmd)
 
-    # def paste_text(self):
-    #     ''' Replaces the current text with text from the clipboard '''
-    #     self.txt.delete("1.0", END)
-    #     self.txt.insert("1.0", root.clipboard_get())
+    def paste_text(self):
+        ''' Replaces the current text with text from the clipboard '''
+        resp = messagebox.askokcancel('Paste Text', 'OK to paste over existing text?')
+        if resp is not True:
+            return
+        self.txt.delete("1.0", END)
+        self.txt.insert("1.0", root.clipboard_get())
 
 ############################################################
 # change working directory to path for this file
 p = os.path.realpath(__file__)
 os.chdir(os.path.dirname(p))
 
-# try:
-#   client = OpenAI(
-#   api_key = os.environ.get("GPTKEY")  # openai API
-#   )
-# except Exception as e:
-#   print("Could Not Read Key file\n", "Did you enter your Gpt Key?")
-#   sys.exit()
+try:
+    # Load the API key from an environment variable or a .env file
+    openai.api_key = os.getenv("GPTKEY")
+except Exception as e:
+  print("Could Not Read Key file\n", "Did you enter your Gpt Key?")
+  sys.exit()
 
 
 # THEMES
@@ -206,7 +212,7 @@ os.chdir(os.path.dirname(p))
 # 'sandstone', 'yeti', 'pulse', 'united', 'morph',
 # 'journal', 'darkly', 'superhero', 'solar', 'cyborg',
 # 'vapor', 'simplex', 'cerculean'
-root = Window("Ovoc V1.0", "superhero", "ovoc.png")
+root = Window("Ovoc V1.2", "superhero", "ovoc.png")
 
 # TO SAVE GEOMETRY INFO
 def save_location(e=None):
