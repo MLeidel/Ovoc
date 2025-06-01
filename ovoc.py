@@ -7,10 +7,12 @@ comments:
     Linux uses the 'play' (SoX) utility
     openai module is required
         as is ttkbootstrap
+
 '''
 import os, sys
 import platform
-from openai import OpenAI
+import openai
+import subprocess
 from tkinter.font import Font
 from ttkbootstrap import *
 from ttkbootstrap.constants import *
@@ -51,7 +53,18 @@ class Application(Frame):
         lbl_opt = Label(frm1, text='File Format')
         lbl_opt.grid(row=2, column=2, sticky='nsw', padx=4, pady=4)
 
-        optionlist = ('alloy', 'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer')
+        optionlist = (
+            'alloy',
+            'ash',
+            'ballad',
+            'coral',
+            'echo',
+            'fable',
+            'nova',
+            'onyx',
+            'sage',
+            'shimmer'
+        )
         self.opt_voice_data = StringVar()
         self.opt_voice_data.set(optionlist[0])
         opt_voice = OptionMenu(frm1, self.opt_voice_data, *optionlist)
@@ -63,17 +76,20 @@ class Application(Frame):
         frm2 = Frame(self)
         frm2.grid(row=1, column=2, sticky='nsew')
 
-        self.ent_speed_data = StringVar()
-        ent_speed = Entry(frm2, textvariable=self.ent_speed_data, width=5)
-        ent_speed.grid(row=1, column=1, padx=4, pady=4)
-        lbl_speed = Label(frm2, text='Speed')
-        lbl_speed.grid(row=1, column=2, sticky='nsw', padx=4, pady=4)
-        self.ent_speed_data.set("1.0")
 
-        ToolTip(ent_speed,
-                text=" .25 to 4.0 ",
-                bootstyle=(WARNING),
-                wraplength=140)
+        ## speed not supported with this model
+        #
+        # self.ent_speed_data = StringVar()
+        # ent_speed = Entry(frm2, textvariable=self.ent_speed_data, width=5)
+        # ent_speed.grid(row=1, column=1, padx=4, pady=4)
+        # lbl_speed = Label(frm2, text='Speed')
+        # lbl_speed.grid(row=1, column=2, sticky='nsw', padx=4, pady=4)
+        # self.ent_speed_data.set("1.0")
+
+        # ToolTip(ent_speed,
+        #         text=" .25 to 4.0 ",
+        #         bootstyle=(WARNING),
+        #         wraplength=140)
 
         self.mod_var = StringVar() # USE ONE VAR PER GROUP OF BUTTONS
         rad_mod1 = Radiobutton(frm2, variable=self.mod_var, value='tts-1-hd', text='HD')
@@ -83,7 +99,7 @@ class Application(Frame):
         self.mod_var.set("tts-1")
 
         lbl_text = Label(frm2, text='Text ↓')
-        lbl_text.grid(row=4, column=1, sticky='nw', padx=4, pady=2)
+        lbl_text.grid(row=4, column=1, sticky='nw', padx=4, pady=(40,0))
 
 
         frm3 = Frame(self)
@@ -91,24 +107,16 @@ class Application(Frame):
 
         self.txt = Text(frm3)
         self.txt.grid(row=1, column=1)
-        efont = Font(family="Arial", size=11)
+        efont = Font(family="Sans", size=11)
         self.txt.configure(font=efont)
         self.txt.config(wrap="word", # wrap=NONE
                            undo=True, # Tk 8.4
-                           width=50,
+                           width=45,
                            height=9,
                            padx=5, # inner margin
                            insertbackground='#FFF',   # cursor color
                            tabs=(efont.measure(' ' * 4),))
         self.txt.focus()
-        ## basic Text widget commands #
-        # .get("1.0", END)
-        # .delete("1.0", END)
-        # .insert("1.0", "New text content ...")
-        ## Select All
-        # .tag_add(SEL, '1.0', END)
-        # .mark_set(INSERT, '1.0')
-        # .see(INSERT)
 
         self.scr_txt = Scrollbar(frm3, orient=VERTICAL, command=self.txt.yview)
         self.scr_txt.grid(row=1, column=2, sticky='nsw')
@@ -116,9 +124,6 @@ class Application(Frame):
 
         frm4 = Frame(self)
         frm4.grid(row=3, column=1, columnspan=2, sticky='')
-
-        # btn_paste = Button(frm4, text="Paste", command=self.paste_text)
-        # btn_paste.grid(row=1, column=1, padx=8, pady=8)
 
         btn_create = Button(frm4, text='Create',
                             command=self.create_file, bootstyle="outline")
@@ -140,7 +145,7 @@ class Application(Frame):
             and get response from openai '''
         mod = self.mod_var.get()  # model to use
         voc = self.opt_voice_data.get()  # voice to use
-        spe = float(self.ent_speed_data.get())  # speed to use
+#        spe = float(self.ent_speed_data.get())  # speed to use NOT SUPPORTED
         fmt = self.opt_format_data.get()  # audio file format to use
         inp = self.txt.get("1.0", END).strip()  # text to convert to speech
         fou = self.ent_file_data.get()  # file name to use
@@ -153,18 +158,17 @@ class Application(Frame):
 
         try:
             speech_file_path = os.path.dirname(__file__) + "/files/" + fou
-            response = client.audio.speech.create(
-              model=mod,
+
+            with openai.audio.speech.with_streaming_response.create(
+              model="gpt-4o-mini-tts",
               voice=voc,
-              speed=spe,
               response_format=fmt,
               input=inp
-            )
-            response.stream_to_file(speech_file_path)
+            ) as response:
+              response.stream_to_file(speech_file_path)
             messagebox.showinfo("Success", "saved " + fou)
         except Exception as e:
             messagebox.showerror("Problems", e)
-
 
     def play_file(self):
         ''' Play the audio file currently set
@@ -173,10 +177,10 @@ class Application(Frame):
         fou = self.ent_file_data.get()  # file name to use
         speech_file_path = os.path.dirname(__file__) + "/files/" + fou
         if platform.system() == "Windows":
-            playcmd = speech_file_path
+            playcmd = [speech_file_path,]
         else:
-            playcmd = "play " + speech_file_path
-        os.system(playcmd)
+            playcmd = ['play', speech_file_path]
+        subprocess.Popen(playcmd)
 
     # def paste_text(self):
     #     ''' Replaces the current text with text from the clipboard '''
@@ -188,13 +192,13 @@ class Application(Frame):
 p = os.path.realpath(__file__)
 os.chdir(os.path.dirname(p))
 
-try:
-  client = OpenAI(
-  api_key = os.environ.get("GPTKEY")  # openai API
-  )
-except Exception as e:
-  print("Could Not Read Key file\n", "Did you enter your Gpt Key?")
-  sys.exit()
+# try:
+#   client = OpenAI(
+#   api_key = os.environ.get("GPTKEY")  # openai API
+#   )
+# except Exception as e:
+#   print("Could Not Read Key file\n", "Did you enter your Gpt Key?")
+#   sys.exit()
 
 
 # THEMES
@@ -217,7 +221,7 @@ if os.path.isfile("winfo"):
         lcoor = f.read()
     root.geometry(lcoor.strip())
 else:
-    root.geometry("435x354") # WxH+left+top
+    root.geometry("430x354") # WxH+left+top
 
 root.protocol("WM_DELETE_WINDOW", save_location)  # UNCOMMENT TO SAVE GEOMETRY INFO
 root.resizable(0, 0) # no resize & removes maximize button
