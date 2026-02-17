@@ -207,7 +207,7 @@ class Application(Frame):
         fou = self.ent_file_data.get()  # file name to use
         speech_file_path = os.path.dirname(__file__) + "/files/" + fou
         if platform.system() == "Windows":
-            playcmd = [speech_file_path,]
+            playcmd = ['C:\\Program Files\\VideoLAN\\VLC\\vlc.exe ', speech_file_path,]
         else:
             playcmd = ['play', speech_file_path]
         subprocess.Popen(playcmd)
