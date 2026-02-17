@@ -4,4 +4,6 @@ __pycache__/
 getmd
 bkup_*
 *.html
-
+speech.*
+files/*
+.clai

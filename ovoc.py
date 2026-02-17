@@ -50,7 +50,7 @@ class Application(Frame):
         opt_format = OptionMenu(frm1, self.opt_format_data, *optionlist)
         opt_format.grid(row=2, column=1, sticky='nse', padx=4, pady=4)
 
-        lbl_opt = Label(frm1, text='File Format')
+        lbl_opt = Label(frm1, text='Audio File Format')
         lbl_opt.grid(row=2, column=2, sticky='nsw', padx=4, pady=4)
 
         optionlist = (
@@ -63,6 +63,7 @@ class Application(Frame):
             'nova',
             'onyx',
             'sage',
+            'verse',
             'shimmer'
         )
         self.opt_voice_data = StringVar()
@@ -75,7 +76,6 @@ class Application(Frame):
 
         frm2 = Frame(self)
         frm2.grid(row=1, column=2, sticky='nsew')
-
 
         ## speed not supported with this model
         #
@@ -106,7 +106,7 @@ class Application(Frame):
         frm3.grid(row=2, column=1, columnspan=2, sticky='nsew')
 
         self.txt = Text(frm3)
-        self.txt.grid(row=1, column=1)
+        self.txt.grid(row=1, column=1, sticky='nsew')
         efont = Font(family="Sans", size=11)
         self.txt.configure(font=efont)
         self.txt.config(wrap="word", # wrap=NONE
@@ -122,18 +122,40 @@ class Application(Frame):
         self.scr_txt.grid(row=1, column=2, sticky='nsw')
         self.txt['yscrollcommand'] = self.scr_txt.set
 
+        self.txti = Text(frm3)
+        self.txti.grid(row=2, column=1, sticky='nsew')
+        self.txti.configure(font=efont)
+        self.txti.config(wrap="word", # wrap=NONE
+                           undo=True, # Tk 8.4
+                           width=45,
+                           height=6,
+                           padx=5, # inner margin
+                           insertbackground='#FFF',   # cursor color
+                           tabs=(efont.measure(' ' * 4),))
+
+        self.scr_txti = Scrollbar(frm3, orient=VERTICAL, command=self.txti.yview)
+        self.scr_txti.grid(row=2, column=2, sticky='nsw')
+        self.txti['yscrollcommand'] = self.scr_txti.set
+        self.txti.insert("1.0","instructions")
+
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        frm3.grid_columnconfigure(1, weight=1)
+        frm3.grid_columnconfigure(2, weight=0)
+        frm3.grid_rowconfigure(1, weight=1)
+
         frm4 = Frame(self)
         frm4.grid(row=3, column=1, columnspan=2, sticky='')
 
-        btn_paste = Button(frm4, text="Paste",
-                           command=self.paste_text, bootstyle="outline")
-        btn_paste.grid(row=1, column=1, padx=20)
+        btn_clear = Button(frm4, text="Clear",
+                           command=self.clear_text, bootstyle="outline")
+        btn_clear.grid(row=1, column=1, padx=20)
 
         btn_create = Button(frm4, text='Create',
                             command=self.create_file, bootstyle="outline")
         btn_create.grid(row=1, column=2, padx=20, pady=8)
         ToolTip(btn_create,
-                text="Creates audio file from the above specifications",
+                text="Creates audio file from the above text and specifications",
                 bootstyle=(WARNING),
                 wraplength=130)
 
@@ -153,6 +175,9 @@ class Application(Frame):
         fmt = self.opt_format_data.get()  # audio file format to use
         inp = self.txt.get("1.0", END).strip()  # text to convert to speech
         fou = self.ent_file_data.get()  # file name to use
+        ins = self.txti.get("1.0", END).strip()  # what should the voice sound like
+        if ins == "instructions":
+            ins = ""
         # print()
         # print(mod,voc,spe,fmt,inp.strip(),fou)
 
@@ -167,6 +192,7 @@ class Application(Frame):
               model="gpt-4o-mini-tts",
               voice=voc,
               response_format=fmt,
+              instructions=ins,
               input=inp
             ) as response:
               response.stream_to_file(speech_file_path)
@@ -186,13 +212,13 @@ class Application(Frame):
             playcmd = ['play', speech_file_path]
         subprocess.Popen(playcmd)
 
-    def paste_text(self):
-        ''' Replaces the current text with text from the clipboard '''
-        resp = messagebox.askokcancel('Paste Text', 'OK to paste over existing text?')
+    def clear_text(self):
+        ''' clears text '''
+        resp = messagebox.askokcancel('Clear Text', 'OK to erase existing text?')
         if resp is not True:
             return
         self.txt.delete("1.0", END)
-        self.txt.insert("1.0", root.clipboard_get())
+        self.txt.insert("1.0","")
 
 ############################################################
 # change working directory to path for this file
@@ -227,10 +253,10 @@ if os.path.isfile("winfo"):
         lcoor = f.read()
     root.geometry(lcoor.strip())
 else:
-    root.geometry("430x354") # WxH+left+top
+    root.geometry("440x565") # WxH+left+top
 
 root.protocol("WM_DELETE_WINDOW", save_location)  # UNCOMMENT TO SAVE GEOMETRY INFO
-root.resizable(0, 0) # no resize & removes maximize button
+#root.resizable(0, 0) # no resize & removes maximize button
 
 Application(root)
 
