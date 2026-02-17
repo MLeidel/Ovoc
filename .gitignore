@@ -5,5 +5,4 @@ getmd
 bkup_*
 *.html
 speech.*
-files/*.*
-.clai
+.clai_local
